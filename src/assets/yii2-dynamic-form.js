@@ -81,7 +81,7 @@
             } else if($(this).is('select')) {
                 $(this).find('option:selected').removeAttr("selected");
             } else {
-                $(this).val(''); 
+                $(this).val('');
             }
         });
 
@@ -115,8 +115,8 @@
         var count = _count($elem, widgetOptions);
 
         if (count < widgetOptions.limit) {
-            $toclone = widgetOptions.template;
-            $newclone = $toclone.clone(false, false);
+            var $toclone = widgetOptions.template;
+            var $newclone = $toclone.clone(false, false);
 
             if (widgetOptions.insertPosition === 'top') {
                 $elem.closest('.' + widgetOptions.widgetContainer).find(widgetOptions.widgetBody).prepend($newclone);
@@ -199,7 +199,7 @@
                 matches[2] = matches[2].substring(1, matches[2].length - 1);
                 var identifiers = matches[2].split('-');
                 identifiers[0] = index;
-                
+
                 if (identifiers.length > 1) {
                     var widgetsOptions = [];
                     $elem.parents('div[data-dynamicform]').each(function(i){
@@ -225,7 +225,7 @@
                 $(this).removeClass('field-' + id).addClass('field-' + newID);
             });
             // update "for" attribute
-            $elem.closest(widgetOptions.widgetItem).find("label[for='" + id + "']").attr('for',newID); 
+            $elem.closest(widgetOptions.widgetItem).find("label[for='" + id + "']").attr('for',newID);
         }
 
         return newID;
@@ -303,7 +303,7 @@
             var name = $(this).attr('name');
 
             if (id !== undefined && name !== undefined) {
-                currentWidgetOptions = eval($(this).closest('div[data-dynamicform]').attr('data-dynamicform'));
+                var currentWidgetOptions = eval($(this).closest('div[data-dynamicform]').attr('data-dynamicform'));
                 var matches = id.match(regexID);
 
                 if (matches && matches.length === 4) {
@@ -324,7 +324,7 @@
         var matchID = inputID.match(regexID);
 
         if (matchID && matchID.length === 4) {
-            for (index = 0; index < configDepdrop.depends.length; ++index) {
+            for (var index = 0; index < configDepdrop.depends.length; ++index) {
                 var match = configDepdrop.depends[index].match(regexID);
                 if (match && match.length === 4) {
                     configDepdrop.depends[index] = match[1] + matchID[2] + match[3];
