@@ -199,7 +199,7 @@
                 matches[2] = matches[2].substring(1, matches[2].length - 1);
                 var identifiers = matches[2].split('-');
                 identifiers[0] = index;
-                
+
                 if (identifiers.length > 1) {
                     var widgetsOptions = [];
                     $elem.parents('div[data-dynamicform]').each(function(i){
@@ -277,50 +277,75 @@
         });
     };
 
-    var _fixFormValidatonInput = function(widgetOptions, attribute, id, name) {
+    var _fixFormValidatonInput = function(widgetOptions, attribute, ctrlId, inputId, name) {
         if (attribute !== undefined) {
             attribute           = $.extend(true, {}, attribute);
-            attribute.id        = id;
-            attribute.container = ".field-" + id;
-            attribute.input     = "#" + id;
+            attribute.id        = ctrlId;
+            attribute.container = ".field-" + inputId;
+            attribute.input     = "#" + inputId;
             attribute.name      = name;
-            attribute.value     = $("#" + id).val();
+            attribute.value     = $("#" + inputId).val();
             attribute.status    = 0;
 
-            if ($("#" + widgetOptions.formId).yiiActiveForm("find", id) !== "undefined") {
-                $("#" + widgetOptions.formId).yiiActiveForm("remove", id);
+            if ($("#" + widgetOptions.formId).yiiActiveForm("find", ctrlId) !== "undefined") {
+                $("#" + widgetOptions.formId).yiiActiveForm("remove", ctrlId);
             }
 
             $("#" + widgetOptions.formId).yiiActiveForm("add", attribute);
         }
     };
 
-    var _fixFormValidaton = function(widgetOptions) {
-        var widgetOptionsRoot = _getWidgetOptionsRoot(widgetOptions);
+	// Converts name to ID
+	// $name = strtolower(static::getInputName($model, $attribute));
+	// return str_replace(['[]', '][', '[', ']', ' ', '.'], ['', '-', '-', '', '-', '-'], $name);
+	var _nameToID = function(name) {
+		var id = name.toLowerCase();
 
-        $(widgetOptionsRoot.widgetBody).find('input, textarea, select').each(function() {
-            var id   = $(this).attr('id');
-            var name = $(this).attr('name');
+		return id.replace(/\[\]/, '')
+				 .replace(/\]\[/, '-')
+				 .replace(/\[/, '-')
+				 .replace(/\]/, '')
+				 .replace(/ /, '-')
+				 .replace(/\./, '-');
+	};
 
-            if (id !== undefined && name !== undefined) {
+	var _fixFormValidaton = function(widgetOptions) {
+		var widgetOptionsRoot = _getWidgetOptionsRoot(widgetOptions);
 
-				// HACK: Desperate fix for radioList controls for custom project
-				id = id.replace('_0', '');
+		var lastCtrlId = '';
+		$(widgetOptionsRoot.widgetBody).find('input, textarea, select').each(function() {
+			var id   = $(this).attr('id');
+			var name = $(this).attr('name');
 
-                currentWidgetOptions = eval($(this).closest('div[data-dynamicform]').attr('data-dynamicform'));
-                var matches = id.match(regexID);
+			if (id !== undefined && name !== undefined) {
 
-                if (matches && matches.length === 4) {
-                    matches[2]      = matches[2].substring(1, matches[2].length - 1);
-                    var level       = _getLevel($(this));
-                    var identifiers = _createIdentifiers(level -1);
-                    var baseID      = matches[1] + '-' + identifiers.join('-') + '-' + matches[3];
-                    var attribute   = $("#" + currentWidgetOptions.formId).yiiActiveForm("find", baseID);
-                    _fixFormValidatonInput(currentWidgetOptions, attribute, id, name);
-                }
-            }
-        });
-    };
+				// Fix for custom control IDs
+				var ctrlId = _nameToID(name);
+				if (lastCtrlId !== ctrlId) {
+
+					// HACK: Desperate fix for radioList controls for custom project
+					if ($(this).attr('type') && $(this).attr('type').toLowerCase() === 'radio') {
+						id = id.replace('_0', '');
+					}
+
+					currentWidgetOptions = eval($(this).closest('div[data-dynamicform]').attr('data-dynamicform'));
+					var matches = ctrlId.match(regexID);
+
+					if (matches && matches.length === 4) {
+						matches[2]      = matches[2].substring(1, matches[2].length - 1);
+						var level       = _getLevel($(this));
+						var identifiers = _createIdentifiers(level -1);
+						var baseID      = matches[1] + '-' + identifiers.join('-') + '-' + matches[3];
+						var attribute   = $("#" + currentWidgetOptions.formId).yiiActiveForm("find", baseID);
+						_fixFormValidatonInput(currentWidgetOptions, attribute, ctrlId, id, name);
+					}
+
+					lastCtrlId = ctrlId;
+				}
+
+			}
+		});
+	};
 
     var _restoreKrajeeDepdrop = function($elem) {
         var configDepdrop = $.extend(true, {}, eval($elem.attr('data-krajee-depdrop')));
