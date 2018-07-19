@@ -5,7 +5,7 @@
  * @license   https://github.com/wbraganca/yii2-dynamicform/blob/master/LICENSE
  */
 
-namespace igorcode\dynamicform;
+namespace wbraganca\dynamicform;
 
 /**
  * Asset bundle for dynamicform Widget
