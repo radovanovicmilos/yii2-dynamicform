@@ -303,10 +303,6 @@
             var name = $(this).attr('name');
 
             if (id !== undefined && name !== undefined) {
-
-				// HACK: Desperate fix for radioList controls for custom project
-				id = id.replace('_0', '');
-
                 currentWidgetOptions = eval($(this).closest('div[data-dynamicform]').attr('data-dynamicform'));
                 var matches = id.match(regexID);
 
